@@ -1,0 +1,27 @@
+ORG 0000H           ; Start at memory location 0000H
+MOV R2, #00H        ; Initialize intensity to 0 (fade-in starts here)
+MOV R5, #01H        ; Direction: 1 for fade-in, -1 for fade-out
+
+FADE:
+    MOV A, R2       ; Load the current intensity value
+    ADD A, R5       ; Adjust intensity based on the current direction
+    MOV R2, A       ; Store updated intensity
+    MOV P2, A       ; Output intensity value to port P2
+    ACALL DELAY     ; Call delay to control fade speed
+
+    CJNE A, #255, CHECK_FADE_OUT ; If intensity not 255, continue fade-in
+    MOV R5, #-1     ; Switch to fade-out
+
+CHECK_FADE_OUT:
+    CJNE A, #00H, FADE ; If intensity not 0, continue fade-out
+    MOV R5, #01H       ; Switch back to fade-in
+    SJMP FADE          ; Repeat the fade loop
+
+DELAY:
+    MOV R4, #50       ; Outer loop count for delay
+H1: MOV R3, #255      ; Inner loop count for delay
+H2: DJNZ R3, H2       ; Decrement inner loop
+    DJNZ R4, H1       ; Decrement outer loop
+    RET               ; Return from subroutine
+
+END
